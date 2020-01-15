@@ -1,0 +1,58 @@
+/**
+ * All of the CSS for your public-facing functionality should be
+ * included in this file.
+ */
+input[type="text"], input[type="email"], input[type="password"], textarea, select {
+    padding: 1%;
+    border: 1px solid #EAEAEA;
+    line-height: 20px;
+    width: 98%;
+    margin: 0 0 30px;
+    background-color: #F8F8F8;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+input[type="text"], input[type="email"], input[type="password"], input[type="checkbox"], textarea {
+/*    -moz-appearance: none !important;*/
+     appearance: none !important;
+}
+input[type="checkbox"], textarea, select {
+    padding: 1%;
+    background-color: #F8F8F8;
+ }
+ select {
+    width: 255px;
+ }
+ .em-ticket-select{
+     width: 100%;
+ }
+ 
+ @media only screen and (min-width: 320px) and (max-width: 400px) {
+    .em-booking-form-details{
+        width: 100%;
+    }
+ }
+ @media only screen and (min-width: 320px) and (max-width: 600px) {
+    div.em-booking-login {
+       padding: 0px;
+       margin: 0px;
+       border-left: 0;
+   }
+}
+
+.infoCorso{
+    color: #0024ff;
+}
+.attestatoCorso{
+    color: #ab2d32;
+}
+
+i.infoCorso:hover, i.attestatoCorso:hover{
+    cursor: pointer;
+}
+.Centrato{
+    display: block;
+    margin: auto;
+    width: 40%;
+}

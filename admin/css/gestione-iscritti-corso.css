@@ -1,0 +1,179 @@
+
+/* =Responsive 12 Column Grid
+-------------------------------------------------------------- */
+.grid {
+    float:left;
+    margin-bottom:2.083%;
+    padding-top:0;
+    width: 100%;
+}
+.fit {
+    margin-left:0!important;
+    margin-right:0!important;
+}
+h3.rwd-toggle {
+    -webkit-border-top-left-radius: 3px;
+    -webkit-border-top-right-radius: 3px;
+    -moz-border-radius-topleft: 3px;
+    -moz-border-radius-topright: 3px;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    padding: 0 0 0 10px;
+    margin: 20px 0 0 0;
+    border:1px solid #dfdfdf;
+    background-color: #F1F1F1;
+    background-image: -ms-linear-gradient(top, #F9F9F9, #ECECEC);
+    background-image: -moz-linear-gradient(top, #F9F9F9, #ECECEC);
+    background-image: -o-linear-gradient(top, #F9F9F9, #ECECEC);
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#F9F9F9), to(#ECECEC));
+    background-image: -webkit-linear-gradient(top, #F9F9F9, #ECECEC);
+    background-image: linear-gradient(top, #F9F9F9, #ECECEC);
+    height: 34px;
+    line-height: 34px;
+    width: 980px;
+    font-size: 15px;
+    font-weight: normal;
+    float: left;
+}
+h3.rwd-toggle a {
+    color: red;
+    font-family:Georgia, "Times New Roman", "Bitstream Charter", Times, serif;
+    text-decoration: none;
+    text-shadow:#fff 0 1px 0;
+    margin-left:20px;
+    margin-top:3px;
+}
+h3.rwd-toggle a:hover {
+	color: #0073aa;
+}
+h3.active {
+    background-position: left bottom;
+}
+.rwd-container {
+    -webkit-border-bottom-right-radius: 3px;
+    -webkit-border-bottom-left-radius: 3px;
+    -moz-border-radius-bottomright: 3px;
+    -moz-border-radius-bottomleft: 3px;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+    margin: 0;
+    padding: 0;
+    border: 1px solid #dfdfdf;
+    border-top:none;
+    background: #fff;
+    overflow: hidden;
+    font-size: 12px;
+    clear: both;
+    color:#333;
+    width:98%;
+}
+#UtentiAss, #UtentiDisp, #UtentiAtt, #UtentiTra, #UtentiCur, #UtentiMig{ 
+    top: 0 !important;
+    left: 0 !important;
+    min-height: 200px;
+    width: 95%;
+}
+
+.elemento{
+    margin: 10px; 
+}
+#UtentiAss li,.elemento, #UtentiDisp li, #UtentiAtt li, #UtentiTra li, #UtentiCur li, #UtentiMig li{
+    padding: 10px;	
+    font-weight: bold;
+    background: #f0f0f0; /* for non-css3 browsers */
+   /* filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f7f7f7', endColorstr='#e7e7e7'); /* for IE */
+   /* background: -webkit-gradient(linear, left top, left bottom, from(#f7f7f7), to(#e7e7e7)); /* for webkit browsers */
+   /* background: -moz-linear-gradient(top,  #f7f7f7,  #e7e7e7); /* for firefox 3.6+ */
+    cursor: move;
+    border: 1px solid #ddd;
+/*    border-raidus: 10px;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+*/
+    }
+#bloccoSxTra, #bloccoDxTra, #bloccoCorsi, #bloccoDxMig, #bloccoSxMig {
+    width: 30%;
+    float: left;
+    display: inline;
+    margin-left: 10px;       
+}
+
+#bloccoSx{
+    width: 45%;
+    float: left;
+    display: inline;
+    margin-left: 10px;
+}
+#bloccoSxlista,#bloccoSxlistaTra,#bloccoSxlistaMig{
+    float: left;
+    display: inline;
+    overflow: auto;
+    max-height: 500px;
+    border: thin;
+    width: 95%;
+}
+#bloccoDx {
+    width: 45%;
+    float: left;
+    display: inline;
+    margin-left: 10px;
+}
+.step {
+    width: 30%;
+    float: left;
+    display: inline;
+    margin-left: 1%;
+    border: thin solid #0073aa;
+    min-height: 200px;
+    background-color: #ffffff;
+}
+.step h3{
+    text-align: center;
+}
+.step ul{
+    margin-left:5px;
+}
+.button {
+  display: inline-block;
+  border-radius: 4px;
+  background-color: #f4511e;
+  border: none;
+  color: #FFFFFF;
+  text-align: center;
+  font-size: 28px;
+  padding: 20px;
+  width: 200px;
+  transition: all 0.5s;
+  cursor: pointer;
+  margin: 5px;
+}
+
+.button span {
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+  transition: 0.5s;
+}
+
+.button span:after {
+  content: '\00bb';
+  position: absolute;
+  opacity: 0;
+  top: 0;
+  right: -20px;
+  transition: 0.5s;
+}
+
+.button:hover span {
+  padding-right: 25px;
+}
+
+.button:hover span:after {
+  opacity: 1;
+  right: 0;
+}
+.container {
+    background-color:#ffffff;
+    display: inline;
+}
+
