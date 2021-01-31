@@ -158,7 +158,7 @@ class Gestione_Corsi_Admin {
 				$this->DownloadFile($Dir."/ElencoCorsisti$NomeCorso.xlsx");
 				unlink($dir."/ElencoCorsisti$NomeCorso.csv");
 	   			break;
-			case "exportstatistichedw":
+			case "exportstatistiche":
 				require_once( ABSPATH . 'wp-admin/includes/file.php' );	
 				$this->DownloadFile(get_home_path()."wp-content/GestioneCorsi/Excel/StatisticheCorsi.xlsx");
 				break;
@@ -1643,7 +1643,8 @@ class Gestione_Corsi_Admin {
 				$Excel=new Gestione_Documenti();
 				$Excel->CreaStatistiche();
 				echo '<div id="message" class="updated"><p><strong>File Statistiche creato correttamente</strong></p></div>
-				<meta http-equiv="refresh" content="2;url=admin.php?page=statistiche&op=exportstatistichedw"/>';
+				<meta http-equiv="refresh" content="2;url=admin.php?page=statistiche&op=exportstatistiche"/>';
+				die();
 				break;
 			default:
 				$CorsiPeriodo=FUNZIONI::get_CorsiPeriodoFormazione();
@@ -2552,8 +2553,7 @@ class Gestione_Corsi_Admin {
 		flush();
 		if ($stat['size'] < $chunksize) {
 			@readfile($file_path);
-		}
-		else {
+		} else {
 			$handle = fopen($file_path, 'rb');
 			while (!feof($handle)) {
 				echo fread($handle, $chunksize);
@@ -2563,9 +2563,10 @@ class Gestione_Corsi_Admin {
 			fclose($handle);
 		}
 	}
-	
-	protected function DownloadFile($file_path){
-		ob_end_flush();
+
+	protected function DownloadFile($file_path)
+	{
+		ob_flush();
 		flush();
 		header('Content-Disposition: attachment; filename=' . basename($file_path));
 		@readfile($file_path);

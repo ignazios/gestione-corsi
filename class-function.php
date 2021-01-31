@@ -389,6 +389,9 @@
 		if($Minuti<10){
 			$Minuti="0".$Minuti;
 		}
+		if($Ore<10){
+			$Ore="0".$Ore;
+		}
 		switch($Formato){
 			case "Stringa":
 				return $Ore.":".$Minuti;			
@@ -408,13 +411,16 @@
 	static function CorsoConsolidato($Corso){
 		$Attestabile=0;
 		$Lezioni=$Corso->get_Lezioni();
-		if(!is_array($Lezioni) Or !is_array($Corso->get_AttivitaNP()))
+		$AttivNP=$Corso->get_AttivitaNP();
+		if(!is_array($Lezioni) And !is_array($AttivNP))
 			return FALSE;
 		$ANP=0;
-		foreach($Corso->get_AttivitaNP() as $AttivitaNP){
-			if($AttivitaNP[2]=="Si"){
-				$Lezioni[]=array($ANP."0/00/0000");
-				$ANP++;
+		if (is_array($AttivNP)){
+			foreach($AttivNP as $AttivitaNP){
+				if($AttivitaNP[2]=="Si"){
+					$Lezioni[]=array($ANP."0/00/0000");
+					$ANP++;
+				}
 			}
 		}
 		foreach($Lezioni as $Lezione){

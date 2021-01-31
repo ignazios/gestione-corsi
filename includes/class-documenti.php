@@ -38,7 +38,7 @@ class Gestione_Documenti{
 	}
 	
 	protected function CalcColonna($Col){
-		$DoppiaLC=="";	
+		$DoppiaLC="";	
 		if($Col>26){
 			$DoppiaLC=chr(64+intval($Col/26));
 			$Col=intval($Col%27)+1;
@@ -48,6 +48,7 @@ class Gestione_Documenti{
 	}
 	
 	protected function CreaStatisticheCorso($objPHPExcel,$Corso){
+//		echo "<pre>xx";var_dump($Corso->get_IDCorso());echo "</pre>";
 		$sheet = $objPHPExcel->createSheet();
 		$Totali=$Corso->get_TempoLezioni();
 		$OreMin=FUNZIONI::daMin_aOreMin($Totali[0]);
@@ -293,24 +294,26 @@ class Gestione_Documenti{
 		$Riga++;
 		foreach($CorsiPeriodo as $CorsoP){
 			$Corso=new Gestione_Corso($CorsoP->event_id);
-			$DatiCorso=$Corso->StatisticaCorso();
-			$Col=1;//=COLLEG.IPERTESTUALE(SOSTITUISCI(CELLA(\"indirizzo\";$Corso->get_CodiceCorso()!A1);\"'\";\"\");\"$Corso->get_CodiceCorso()\")
-			$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $DatiCorso['Nome_Corso']);
-			$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $DatiCorso['Categorie']);
-			$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $Corso->get_CodiceCorso());
-			$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $DatiCorso['Numero_Iscritti']);
-			$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $DatiCorso['Numero_Corsisti']);
-			$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $DatiCorso['Numero_Lezioni']);
-			$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $DatiCorso['LezioniFatte']);
-			$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $DatiCorso['Totale_Ore_Lezioni'].":00");
-			for($i=0;$i<=10;$i++){
-				$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $DatiCorso['Presenze%'][$i]);
+			if($Corso->has_Post()){
+				$DatiCorso=$Corso->StatisticaCorso();
+				$Col=1;//=COLLEG.IPERTESTUALE(SOSTITUISCI(CELLA(\"indirizzo\";$Corso->get_CodiceCorso()!A1);\"'\";\"\");\"$Corso->get_CodiceCorso()\")
+				$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $DatiCorso['Nome_Corso']);
+				$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $DatiCorso['Categorie']);
+				$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $Corso->get_CodiceCorso());
+				$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $DatiCorso['Numero_Iscritti']);
+				$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $DatiCorso['Numero_Corsisti']);
+				$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $DatiCorso['Numero_Lezioni']);
+				$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $DatiCorso['LezioniFatte']);
+				$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $DatiCorso['Totale_Ore_Lezioni'].":00");
+				for($i=0;$i<=10;$i++){
+					$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $DatiCorso['Presenze%'][$i]);
+				}
+				foreach($DatiCorso['Lezioni'] as $Lezione){
+					$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $Lezione[0]."(".$Lezione[1].")");
+				}
+				$Riga++;
+				$this->CreaStatisticheCorso($objPHPExcel,$Corso);	
 			}
-			foreach($DatiCorso['Lezioni'] as $Lezione){
-				$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $Lezione[0]."(".$Lezione[1].")");
-			}
-			$Riga++;
-			$this->CreaStatisticheCorso($objPHPExcel,$Corso);	
 		}					
 		$sheet->setTitle('Dati Corsi');
 

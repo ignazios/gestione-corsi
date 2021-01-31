@@ -81,8 +81,6 @@ class Gestione_Corso {
 
 	public function get_NumLezioni($Tutte="S"){
 		$Date=unserialize(get_post_meta( $this->ID_post, '_lezioniCorso',TRUE));
-		if( !is_array( $Date ))
-			return 0;
 //		$Online=(get_post_meta($this->ID_post, "_oreOnLineIndividualizzate",TRUE)=="Si"?1:0);
 		$nANP=0;
 		if($this->AttivitaNP!==FALSE And $Tutte=="S"){
@@ -326,7 +324,14 @@ class Gestione_Corso {
 			return FALSE;
 		}		
 	}
-	
+	public function has_Post(){
+		$Post=get_post($this->ID_post);
+		if(is_null($Post)) {
+			return FALSE;
+		}else{
+			return TRUE;
+		}
+	}
 	protected $Corsisti=array();
 	/**
 	 * Costruttore standard 
@@ -371,7 +376,7 @@ class Gestione_Corso {
 		global $wpdb;
 		$Sql="SELECT ".$wpdb->table_lezioni.".Consolidata FROM ".$wpdb->table_lezioni." WHERE ".$wpdb->table_lezioni.".IDCorso=%d And ".$wpdb->table_lezioni.".DataLezione=%s;";
 		$Stato=$wpdb->get_results( $wpdb->prepare( $Sql,$this->ID_corso,FUNZIONI::FormatDataDB($Data)), OBJECT );
-		$Stato=$Stato[0];
+		$Stato=(isset($Stato[0])?$Stato[0]:0);
 //		echo $wpdb->prepare( $Sql,$this->ID_corso,FUNZIONI::FormatDataDB($Data));
 		return ($Stato->Consolidata==1?True:False);
 	}
@@ -388,8 +393,6 @@ class Gestione_Corso {
 		$Sql="SELECT ".$wpdb->table_lezioni.".DataLezione FROM ".$wpdb->table_lezioni." WHERE ".$wpdb->table_lezioni.".IDCorso=%d;";
 		$DTCorsi=$wpdb->get_results( $wpdb->prepare( $Sql,$this->ID_corso), ARRAY_N );
 		$SeriaLezioni=get_post_meta($this->ID_post, "_lezioniCorso",TRUE);
-		if(!is_array($SeriaLezioni))
-			return TRUE;
 		$Lezioni=($SeriaLezioni?unserialize( $SeriaLezioni):array());
 		$DateLezioni=array();
 		foreach($Lezioni as $Lezione){
@@ -488,7 +491,7 @@ class Gestione_Corso {
 //		var_dump($_REQUEST);
 		$Social=new Piattaforma_Social();
 		$Corsisti=explode(",",$Corsisti);
-		
+//	var_dump($Gruppo);	
 ?>
 <div class="wrap">
 	<h2>Allineamento Gruppo Piattaforma Social</h2>
@@ -849,11 +852,11 @@ class Gestione_Corso {
 				$Registro=$Registro[0];//var_dump($OreLezioni);
 				$MinPresenzaTotali=0;
 				foreach($Registro['Lezioni'] as $Lezione){
-					$MinutiLezione=$OreLezioni[$Lezione['Data']];
+					$MinutiLezione=(isset($OreLezioni[$Lezione['Data']])?$OreLezioni[$Lezione['Data']]:0);
 					$OreLezione=intval($MinutiLezione/60);
 					$MinutiLezione=$MinutiLezione-$OreLezione*60;
 					if($Lezione['Presenza']==1){
-						$MinPresenza=$OreLezioni[$Lezione['Data']]-$Lezione['AssenzaMin'];
+						$MinPresenza=(isset($OreLezioni[$Lezione['Data']])?$OreLezioni[$Lezione['Data']]-$Lezione['AssenzaMin']:0);
 						$MinPresenzaTotali+=$MinPresenza;
 					}
 				}
@@ -959,55 +962,7 @@ class Gestione_Corso {
 		return $Corsisti;
 	}
 	
-	private function crea_Lista_Utenti_Rifiutati($Output="li"){
-		$DaIncludere=array();
-		$Corso        = new EM_Event($this->ID_corso);
-		$Prenotazioni =new EM_Bookings($Corso);
-		$Prenotazioni=$Prenotazioni->get_rejected_bookings();
-		//var_dump($Prenotazioni);
-		foreach($Prenotazioni as $Key => $Valori){
-			$DaIncludere[]=$Valori->person_id;
-		}
-		if(count($DaIncludere)>0){
-			$args = array(	'role__not_in' => array("administrator"),
-							'include'	   => $DaIncludere,
-							'orderby'      => 'last_name,first_name',
-							'order'        => 'ASC',
-							'fields'       => 'ID',
-							'who'          => ''
-						 );	
-						 //var_dump($args);
-			$Utenti  = get_users( $args );			
-		}else{
-			$Utenti=array();
-		}
-		$UserData= new Utenti();
-		$Scuole   = new Scuole(); 
-		$Lista="";
-		if($Output=="Array"){
-			return $Utenti;
-		}
-		foreach($Utenti as $Utente){
-			$DatiUtente=$UserData->get_Descrizione($Utente);
-			if(($Scuola=$Scuole->get_Scuola($DatiUtente["Scuola"]))===FALSE){
-				$Scuola=" Scuola non definita";
-			}else{
-				$Scuola=substr($Scuola,0,10);
-			}
-			foreach($Prenotazioni as $Key => $Valori){
-				if($Valori->person_id==$Utente){
-					$IDP=$Valori->booking_id;
-					break;
-				}
-			}
-			switch($Output){
-				case "li":
-					$Lista.="<li id=".$IDP."|".$Utente.">".ucwords($DatiUtente["Nome"])." ".ucwords($DatiUtente["Cognome"])." Codice Fiscale:".$DatiUtente["CF"]." Scuola:".$Scuola."</li>\n";
-					break;
-			}
-		}
-		return $Lista;
-	}
+	
 	private function crea_Lista_Utenti_Prenotati($Output="li"){
 		$DaIncludere=array();
 		$Corso        = new EM_Event($this->ID_corso);
@@ -1106,11 +1061,12 @@ class Gestione_Corso {
 		}
 //		ksort($DatiUtentes);
 		
-		$DatiUtentes=FUNZIONI::MultiSort($DatiUtentes, array('Cognome'=>SORT_ASC, 'Nome'=>SORT_ASC));
+		$DatiUtentes=FUNZIONI::MultiSort($DatiUtentes, array('Cognome'=>SORT_ASC, 'Nome'=>SORT_ASC, 'Email'=>SORT_ASC , 'ID'=>SORT_ASC));
 		if($Output=="Array"){
 			return $Utenti;
 		}
 		foreach($DatiUtentes as $DatiUtente){
+//			var_dump($DatiUtente);
 //			$DatiUtente=$UserData->get_Descrizione($Utente);
 			if($CM!="" And $CM!=$DatiUtente["Scuola"]){
 				continue;
@@ -1122,7 +1078,7 @@ class Gestione_Corso {
 			}
 			switch($Output){
 				case "li":
-					$Lista.="<li id=".$DatiUtente["Id"].">".$DatiUtente["Cognome"]." ".$DatiUtente["Nome"]." Codice Fiscale:".$DatiUtente["CF"]." Scuola:".$Scuola."</li>\n";
+					$Lista.="<li id=".$DatiUtente["Id"].">".$DatiUtente["Cognome"]." ".$DatiUtente["Nome"]." (".$DatiUtente["Id"]. ")"." email:".$DatiUtente["Email"]." Scuola:".$Scuola."</li>\n";
 					break;
 			}
 		}
@@ -1657,295 +1613,6 @@ class Gestione_Corso {
 		<?php do_action('em_bookings_event_footer', $EM_Event); ?>
 	</div>
 <?php
-	}
-	/**
-	 * Metodo che duplica il corso  
-	 * @param 
-	 * @return Nessuno
-	 */
-	public function DuplicaCorso(){
-		$InfoUtente=new Utenti();
-		$Prenotati=$this->crea_Lista_Utenti_Prenotati("Array");
-		$Iscritti=array();
-		foreach($Prenotati as $Prenotato){
-			$DatiUtente=$InfoUtente->get_Descrizione((int)$Prenotato);
-			$Iscritti[]=array("ID"		=> $Prenotato,
-							  "Cognome" => $DatiUtente['Cognome'],
-							  "Nome"	=> $DatiUtente['Nome'],
-							  "Scuola"	=> $DatiUtente['NomeScuola'],
-							  "Stato"	=> "Prenotato");
-		}
-		$Rifiutati=$this->crea_Lista_Utenti_Rifiutati("Array");
-		foreach($Rifiutati as $Rifiutato){
-			$DatiUtente=$InfoUtente->get_Descrizione((int)$Rifiutato);
-			$Iscritti[]=array("ID"		=> $Rifiutato,
-							  "Cognome" => $DatiUtente['Cognome'],
-							  "Nome"	=> $DatiUtente['Nome'],
-							  "Scuola"	=> $DatiUtente['NomeScuola'],
-							  "Stato"	=> "Iscrizione Respinta");
-		}
-		$Partecipanti=$this->crea_Lista_Utenti(false, true,"Array");
-		foreach($Partecipanti as $Partecipante){
-			$DatiUtente=$InfoUtente->get_Descrizione((int)$Partecipante);
-			$Iscritti[]=array("ID"		=> $Partecipante,
-							  "Cognome" => $DatiUtente['Cognome'],
-							  "Nome"	=> $DatiUtente['Nome'],
-							  "Scuola"	=> $DatiUtente['NomeScuola'],
-							  "Stato"	=> "Partecipante");
-		}		
-		$IdEvento=filter_input(INPUT_GET,"event_id");
-?>
-<div class="wrap">
-	<h2>Duplicazione Corso</h2>
-	<div class="tornaindietro" style="margin-bottom:10px;">
-		<a href="<?php echo site_url().'/wp-admin/admin.php?page=corsi';?>" class="add-new-h2" style="font-size:1.3em;"><i class="fas fa-hand-point-left"></i> Torna indietro</a>
-	</div>
-	<div class='table-wrap'>
-		<form method="get" action="" id="DuplicaCorso">
-			<input type="hidden" name="page" value="corsi"/>
-			<input type="hidden" name="op" value="duplicazionecorso"/>
-			<input type="hidden" name="event_id" value="<?php echo $IdEvento;?>"/>
-			<input type="hidden" name="secur" value="<?php echo wp_create_nonce( 'DuplicaCorso' );?>" />		
-		<h3>Corso da duplicare: <?php echo $this->Nome_Corso;?></h3>
-		<table border="0">
-			<tbody>
-				<tr style="text-align:right;">
-					<th><label name="NewName">Nome del corso duplicato</label></th>
-					<td><input	type="text"	id="NewName" name="NewName" value="" size="100" maxlength="100"/></td>
-				</tr>
-				<tr style="text-align:right;">
-					<th><label name="NewCod">Codice corso</label></th>
-					<td style="text-align:left;color:red;font-weight: bold;">(<?php echo $this->CodiceCorso;?>) <input type="text"	id="NewCod" name="NewCod" value="" size="20" maxlength="20"/></td>
-				</tr>
-				<tr>
-					<th style="text-align:right;"><label name="Formatori">Mantieni i Formatori</label></th>
-					<td><input	type="checkbox"	id="Formatori" name="Formatori"/></td>
-				</tr>
-				<tr>
-					<th style="text-align:right;"><label name="Tutor">Mantieni i Tutor</label></th>
-					<td><input	type="checkbox"	id="Tutor" name="Tutor"/></td>
-				</tr>
-				<tr>
-					<th style="text-align:right;"><label name="Iscrizioni">Iscrizioni Aperte</label></th>
-					<td><input	type="checkbox"	id="Iscrizioni" name="Iscrizioni"/> Per N&deg; giorni: <input	type="number" id="GGAI" name="GGAI" min="0" max="30"/></td>
-				</tr>
-				<tr>
-					<th style="text-align:right;"><label name="Date">Mantieni date lezioni</label></th>
-					<td><input	type="checkbox"	id="Date" name="Date"/></td>
-				</tr>
-				<tr>
-					<th style="text-align:right;"><label name="Attivita">Mantieni attività</label></th>
-					<td><input	type="checkbox"	id="Attivita" name="Attivita"/></td>
-				</tr>
-			</tbody>
-		</table>
-		<h4>Iscritti e Prenotati al corso </h4>
-		<div>
-			<strong>Tipo Iscrizione corsisti selezionati</strong> 
-			<input type="radio" name="TipoIscrizione" value="InCoda" checked> <em>inserimento in coda</em> 
-			<input type="radio" name="TipoIscrizione" value="Iscrizione"> <em>iscrizione diretta</em>
-		</div>
-		<br />
-		<table class="widefat">
-			<thead>
-				<tr>
-					<th>ID</th>
-					<th>Cognome</th>
-					<th>Nome</th>
-					<th>Scuola</th>
-					<th>Stato Iscrizione</th>
-				</tr>
-			</thead>
-			<tbody>
-<?php
-	foreach($Iscritti as $Iscritto){
-?>				<tr>
-					<td><input type="checkbox" id="<?php echo $Iscritto['ID'];?>" name="IDUM[]" value="<?php echo $Iscritto['ID'];?>" /> <?php echo $Iscritto['ID'];?></td>
-					<td><strong><?php echo $Iscritto['Cognome'];?></strong></td>
-					<td><strong><?php echo $Iscritto['Nome'];?></strong></td>
-					<td><?php echo $Iscritto['Scuola'];?></td>
-					<td><strong><?php echo $Iscritto['Stato'];?></strong></td>
-				</tr>
-<?php
-	}
-?>			</tbody>
-		</table>
-		<button class="button" id="ButtonDuplicaCorso" style="margin-top:5px; color:blue;font-size:1.5em;">
-			<i class="fas fa-magic" aria-hidden="true"> Duplica Corso</i>
-		</button>
-		</form>
-	</div>
-</div>
-<?php
-	}	
-	public function EseguiDuplicazioneCorso($NewName,$NewCod,$MantieniFormatori,$MantieniTutor,$IscrizioniAperte,$NumGGAI,$MantieniDate,$MantieniAttivita,$TipoIscrizione,$Corsisti){
-?>	
-	<div class="wrap">
-		<h2>Duplicazione Corso</h2>
-		<div class="tornaindietro" style="margin-bottom:10px;">
-			<a href="<?php echo site_url().'/wp-admin/admin.php?page=corsi';?>" class="add-new-h2" style="font-size:1.3em;"><i class="fas fa-hand-point-left"></i> Torna indietro</a>
-<?php
-		$Evento=new EM_Event($this->ID_corso);
-		$NuovoEvento=$Evento->duplicate();
-?>		
-			<a href="<?php echo site_url().'/wp-admin/post.php?post='.$NuovoEvento->post_id.'&action=edit';?>" class="add-new-h2" style="font-size:1.3em;"><i class="far fa-eye"></i> Visualizza Evento</a>
-		</div>	
-		<div class='table-wrap'>
-			<table class="widefat" border="0">
-				<thead>
-					<tr>
-						<th>Operazione</th>
-						<th>Stato</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td>Evento</td>
-						<td>
-<?php
-		$IDPNuovoEvento=$NuovoEvento->post_id;
-		$NuovoEvento->event_name=$NewName;
-		if(!$NuovoEvento->save())
-			echo "Non duplicato"			
-			. "						</td>
-					</tr>";
-		else{
-			echo "Duplicato con nome <strong>".$NewName."</strong>";
-?>							
-						</td>
-					</tr>
-					<tr>
-						<td>Codice Corso</td>
-						<td>
-<?php
-		update_post_meta($IDPNuovoEvento,"_codiceCorso",$NewCod);
-		echo "<strong>".$NewCod."</strong>";
-?>									
-						</td>
-					</tr>
-					<tr>
-						<td>Stato Evento</td>
-						<td>
-<?php
-		$NuovoEvento->set_status(1,TRUE);
-		switch( $NuovoEvento->get_status()){
-			case  0:echo 'Bozza';	break;
-			case  1:echo 'Pubblicato';	break;
-			case -1:echo 'Cancellato'; break;
-		}
-?>
-						</td>
-					</tr>
-					<tr>
-						<td>Iscrizioni</td>
-						<td>
-<?php
-		$Tickets=$NuovoEvento->get_tickets();
-		if($IscrizioniAperte){
-			$Start=date("Y-m-d 00:00:00");
-			$End= Funzioni::DateAdd(date("Y-m-d"),$NumGGAI)." 00:00:00";
-		}else{
-			$Start=date("0000-00-00 00:00:00");
-			$End=$Start;			
-		}
-		foreach($Tickets->tickets as $Ticket){
-			$Ticket->__set("ticket_start",$Start);
-			$Ticket->__set("ticket_end",$End);
-			$Ticket->save();
-		}
-		echo "Inizio: ".$Start." Fine: ".$End;
-?>						
-						</td>
-					</tr>
-					<tr>
-						<td>Docenti</td>
-						<td>
-<?php
-		if(!$MantieniFormatori){
-			delete_post_meta($IDPNuovoEvento,"_docenteCorso");
-			echo "Rimossi";
-		}else{
-			echo "Mantenuti";
-		}
-?>							
-						</td>
-					</tr>
-					<tr>
-						<td>Tutor</td>
-						<td>
-<?php
-		if(!$MantieniTutor){
-			delete_post_meta($IDPNuovoEvento,"_tutorCorso");
-			echo "Rimossi";
-		}else{
-			echo "Mantenuti";
-		}
-?>								
-						</td>
-					</tr>
-					<tr>
-						<td>Lezioni</td>
-						<td>
-<?php
-		if(!$MantieniDate){
-			delete_post_meta($IDPNuovoEvento,"_lezioniCorso");
-			echo "Rimosse";
-		}else{
-			echo "Mantenute";
-		}
-?>		
-						</td>
-					</tr>
-					<tr>
-						<td>Attività</td>
-						<td>
-<?php
-		if(!$MantieniAttivita){
-			delete_post_meta($IDPNuovoEvento,"_attivita");
-			echo "Rimosse";
-		}else{
-			echo "Mantenute";
-		}
-?>		
-						</td>
-					</tr>
-					<tr>
-						<td>Corsisti</td>
-						<td>
-							<table class="widefat" border="0">
-								<thead>
-									<tr>
-										<th>Corsista</th>
-										<th>Stato</th>
-									</tr>
-								</thead>
-								<tbody>
-<?php
-		if($TipoIscrizione=="InCoda"){
-			$Stato=0;
-		}else{
-			$Stato=1;
-		}
-		$InfoUtente=new Utenti();
-		foreach($Corsisti as $Iscritto){
-?>				
-									<tr>
-										<td><strong><?php $DatiUtente=$InfoUtente->get_Descrizione($Iscritto);echo $DatiUtente['Cognome']." ".$DatiUtente['Nome']." ".$DatiUtente['NomeScuola'];?></strong></td>
-										<td><em><?php echo  $this->Add_Iscrizione($Iscritto,$NuovoEvento->event_id,$Stato);?><em></td>
-									</tr>
-		<?php	}?>
-								</tbody>
-							</table>
-						</td>
-<?php		
-		}
-?>
-				</tbody>
-			</table>
-		</div>
-	</div>
-<?php
-		//echo "<pre>";var_dump($Tickets->tickets[99]);echo "</pre>";
 	}
 	/**
 	 * Metodo che crea le iscrizioni al corso in risposta della form del metodo gest_Iscritti 
