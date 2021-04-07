@@ -84,6 +84,15 @@ class Gestione_Corsi_Admin {
 		$this->isInstalledLM=is_plugin_active('email-log/email-log.php');
 		$this->isInstalledRW=is_plugin_active('re-welcome/re-welcome.php');
 		switch($operazione){
+			case "exportattestati":
+				$nonce = filter_input(INPUT_GET,'secur');
+				$file = filter_input(INPUT_GET,'file');
+				if (! wp_verify_nonce( $nonce, 'AttestatiFrequenza' ) ) {
+							FUNZIONI::die_secur(); 
+							break;
+				} 		
+				$this->DownloadFile($file);
+	   			break;
 			case "exportcorsi":
 				$nonce = filter_input(INPUT_GET,'secur');
 				if (! wp_verify_nonce( $nonce, 'Corsitocsv' ) ) {
@@ -168,7 +177,22 @@ class Gestione_Corsi_Admin {
 				break;
 			}
 	}
-	
+
+	public function My_condizioni_eventi_personalizzati($show_condition, $condition, $conditionals, $output){
+		$Corso=new Gestione_Corso($output->event_id);
+		if($condition=="is_corso" And $Corso->get_CodiceCorso()==="")
+			return false;
+		else 
+			return true;
+	}
+	public function My_output_eventi_personalizzati($replacement, $condition, $conditionals, $evento){
+		$Corso=new Gestione_Corso($output->event_id);
+		if($condition=="is_corso" And $Corso->get_CodiceCorso()==="")
+			return "";
+		else 
+			return $replacement;
+	}
+		
 	public function my_docs_init($force_init = false){
 		global $EM_Documentation;
 		$EM_Documentation['placeholders']['events']['Date and Times']['placeholders']['#_DATECORSO']=array( 'desc' => 'Lista le date delle lezioni del corso.' );
@@ -807,7 +831,7 @@ class Gestione_Corsi_Admin {
 	public function Eventi_save_box_Date($post_id){
 		global $wpdb,$table_prefix;
 		if ( $_POST['post_type'] == 'event' ) {	
-			$CodiceCorso=filter_input(INPUT_POST,"codice_corso");
+			$CodiceCorso=trim(filter_input(INPUT_POST,"codice_corso"));
 			update_post_meta( $post_id, '_codiceCorso', $CodiceCorso);
 			if (isset($_POST["aula"])) update_post_meta( $post_id, '_aulaCorso', $_POST["aula"]);
 		delete_post_meta($post_id, '_docenteCorso');
@@ -864,6 +888,7 @@ class Gestione_Corsi_Admin {
 	 */
 	public function CustomFormCorsi(){
 		$SA="";
+		$GestScuole= get_option('gestione_scuole'); 
 		if(!empty($_REQUEST['scuola'])){
 			$SA=$_REQUEST['scuola'];
 		}
@@ -891,13 +916,15 @@ class Gestione_Corsi_Admin {
 		<label for='booking_comment'>Note</label>
 		<textarea name='booking_comment' rows="2" cols="20" class="input"><?php echo !empty($_REQUEST['booking_comment']) ? esc_attr($_REQUEST['booking_comment']):'' ?></textarea>
 	</p>
+<?php if($GestScuole=="Si"):?>
 	<p>
 		<label for='scuola'>Scuola di appartenenza</label>
 		<select required name="scuola" id="Scuola"  class="input">
 			<?php echo $TestoLista;?>
 		</select>
 	</p>
- 		<?php do_action('em_register_form'); //careful if making an add-on, this will only be used if you're not using custom booking forms ?>					
+<?php  endif;
+		do_action('em_register_form'); //careful if making an add-on, this will only be used if you're not using custom booking forms ?>					
 <?php endif; 
 	}
 	
@@ -906,6 +933,7 @@ class Gestione_Corsi_Admin {
 	 */
 	public function MemoCampiAggiuntiviFormRegistrazione($registration, $EM_Booking, $EM_Notices){
 		if($registration){
+			$GestScuole= get_option('gestione_scuole'); 
 			$Prenotazione=new EM_Booking();
 			$Consenso = (!empty($_REQUEST['data_privacy_consent'])) ? wp_kses_data($_REQUEST['data_privacy_consent']):'';
 			$Scuola = (!empty($_REQUEST['scuola'])) ? wp_kses_data($_REQUEST['scuola']):'';
@@ -913,7 +941,7 @@ class Gestione_Corsi_Admin {
 			if ($Consenso){
 				add_user_meta($EM_Booking->person_id,"Consenso_Privacy",$Consenso);
 			}
-			if($Scuola){
+			if($Scuola And $GestScuole=="Si"){
 				add_user_meta($EM_Booking->person_id,"Scuola",$Scuola);
 			}
 			if($Cognome){
@@ -1003,11 +1031,12 @@ class Gestione_Corsi_Admin {
 		global $log;
 		$plugin_utenti = new Utenti();
 		$plugin_scuole = new Scuole();
-		
+		$GestScuole= get_option('gestione_scuole'); 
 		
 		add_menu_page('Bacheca', 'Gestione Corsi', 'corsi_gest_ass', 'gestione_corsi', array($this,'Bacheca'), 'dashicons-screenoptions', 63);
-	 	add_submenu_page('gestione_corsi', 'Dati Scuole', 'Dati Scuole', 'corsi_admin', 'dati_scuole', array($plugin_scuole,'DatiScuole') );
-	 	add_submenu_page('gestione_corsi', 'Utenti', 'Creazione Utenti', 'corsi_organizzatore', 'creazione_utenti', array($plugin_utenti,'CreaUtenti') );
+		if($GestScuole=="Si")
+	 		add_submenu_page('gestione_corsi', 'Dati Scuole', 'Dati Scuole', 'corsi_admin', 'dati_scuole', array($plugin_scuole,'DatiScuole') );
+	 	add_submenu_page('gestione_corsi', 'Utenti', 'Gestione Utenti', 'corsi_organizzatore', 'creazione_utenti', array($plugin_utenti,'CreaUtenti') );
 	 	if ($this->isInstalledEM){
 			add_submenu_page('gestione_corsi', 'Corsi', 'Corsi', 'corsi_gest_ass', 'corsi',array($this,'GestioneCorsi'));
 			add_submenu_page('gestione_corsi', 'Scadenziario Corsi', 'Scadenziario Corsi', 'corsi_gest_ass', 'scadenziariocorsi',array($this,'ScadenziarioCorsi') );
@@ -2084,6 +2113,26 @@ class Gestione_Corsi_Admin {
 							$Corso->registro_Corso();
 						}
 						break;
+					case "registroattestati":
+						$nonce = $_REQUEST['secur'];
+						if ( ! wp_verify_nonce( $nonce, 'AttestatiFrequenza' ) ) {
+							FUNZIONI::die_secur(); 
+							break;
+						} 
+						if( current_user_can('corsi_admin') Or current_user_can('corsi_gest_corsi') Or $Corso->isMyCourse("Non hai i permessi per eseguire questa Operazione in questo Corso") Or $Corso->isMy("Non hai il diritto di gestire questo corso")){
+							$Corso->registroattestati_Corso();
+						}
+						break;
+					case "generaattestati":
+						$nonce = $_REQUEST['secur'];
+						if ( ! wp_verify_nonce( $nonce, 'Ortsiger' ) ) {
+							FUNZIONI::die_secur(); 
+							break;
+						} 
+						if( current_user_can('corsi_admin') Or current_user_can('corsi_gest_corsi') Or $Corso->isMyCourse("Non hai i permessi per eseguire questa Operazione in questo Corso") Or $Corso->isMy("Non hai il diritto di gestire questo corso")){
+							$Corso->registro_Corso();
+						}
+						break;
 					case "analisiallinealezioni":
 						$nonce = $_REQUEST['secur'];
 						if ( ! wp_verify_nonce( $nonce, 'LezioniAllinea' ) ) {
@@ -2264,6 +2313,10 @@ class Gestione_Corsi_Admin {
 				$SitoSocial= filter_input(INPUT_POST, "tabprefix");
 				update_option('formazione_sitosocial',$SitoSocial);
 				break;
+			case "Salva Attiva Scuola":
+				$GestioneScuole= filter_input(INPUT_POST, "AttivaScuole");
+				update_option('gestione_scuole',$GestioneScuole);
+				break;
 		}
 		$StatoML=$this->isInstalledML?"<spam style=\"background-color:green;color:white;padding:5px;\"> Attivo </spam>":"<spam style=\"background-color:red;color:white;padding:5px;\"> Non Attivo </spam>";
 		$StatoEM=$this->isInstalledEM?"<spam style=\"background-color:green;color:white;padding:5px;\"> Attivo </spam>":"<spam style=\"background-color:red;color:white;padding:5px;\"> Non Attivo </spam>";
@@ -2302,6 +2355,17 @@ class Gestione_Corsi_Admin {
 					<input id="logo_upload" class="button" type="button" value="Carica" />
 					<p></p>
 					<p class="submit"><input type="submit" class="button-primary" name="Submit" value="Salva Impostazioni logo" /></p>
+				</form>
+			</div>
+			<div id="welcome-panel" class="welcome-panel">
+			<h3>Gestione Scuole</h3>
+				<form method="post" name="options" target="_self">
+<?php
+				$Scuole= get_option('gestione_scuole'); 
+?>
+					<label for="AttivaScuole">Attiva la gestione delle scuole negli Utenti e nell'Applicazione</label>
+						<input id="AttivaScuole" type="checkbox" name="AttivaScuole" value="Si" <?php echo ($Scuole=="Si"?"checked":""); ?> />
+					<p class="submit"><input type="submit" class="button-primary" name="Submit" value="Salva Attiva Scuola" /></p>
 				</form>
 			</div>
 			<div id="welcome-panel" class="welcome-panel">
@@ -2529,47 +2593,39 @@ class Gestione_Corsi_Admin {
 		}
 		return $Testo;
 	}
-	protected function DownloadFileOLD($file_path)
-	{
-		$chunksize	= 2*(1024*1024);
-		$stat 		= @stat($file_path);
-		$etag		= sprintf('%x-%x-%x', $stat['ino'], $stat['size'], $stat['mtime'] * 1000000);
-		$path 		= pathinfo($file_path);
-		header('Pragma: public');
-		header('Expires: 0');
-		header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-		header('Cache-Control: private', FALSE);
-		header('Content-Type: application/force-download', FALSE);
-		header('Content-Type: application/octet-stream', FALSE);
-		header('Content-Type: application/download', FALSE);
-		header('Content-Disposition: attachment; filename="'.basename($file_path).'";');
-		header('Content-Transfer-Encoding: binary');
-		header('Last-Modified: ' . date('r', $stat['mtime']));
-		header('Etag: "' . $etag . '"');
-		header('Content-Length: '.$stat['size']);
-		header('Accept-Ranges: bytes');
-		ob_flush();
-		flush();
-		if ($stat['size'] < $chunksize) {
-			@readfile($file_path);
-		}
-		else {
-			$handle = fopen($file_path, 'rb');
-			while (!feof($handle)) {
-				echo fread($handle, $chunksize);
-				ob_flush();
-				flush();
-			}
-			fclose($handle);
-		}
-	}
 	
 	protected function DownloadFile($file_path){
-		ob_end_flush();
-		flush();
-		header('Content-Disposition: attachment; filename=' . basename($file_path));
-		@readfile($file_path);
-		exit;
+			$chunksize	= 2*(1024*1024);
+			$stat 		= @stat($file_path);
+			$etag		= sprintf('%x-%x-%x', $stat['ino'], $stat['size'], $stat['mtime'] * 1000000);
+			header('Pragma: public');
+			header('Expires: 0');
+			header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+			header('Cache-Control: private', FALSE);
+			header('Content-Type: application/force-download', FALSE);
+			header('Content-Type: application/octet-stream', FALSE);
+			header('Content-Type: application/download', FALSE);
+			header('Content-Disposition: attachment; filename="'.basename($file_path).'";');
+			header('Content-Transfer-Encoding: binary');
+			header('Last-Modified: ' . date('r', $stat['mtime']));
+			header('Etag: "' . $etag . '"');
+			header('Content-Length: '.$stat['size']);
+			header('Accept-Ranges: bytes');
+			ob_flush();
+			flush();
+			if ($stat['size'] < $chunksize) {
+				@readfile($file_path);
+			}
+			else {
+				$handle = fopen($file_path, 'rb');
+				while (!feof($handle)) {
+					echo fread($handle, $chunksize);
+					ob_flush();
+					flush();
+				}
+				fclose($handle);
+			}		
+		exit();
 	}
 	
 	public function ScadenziarioCorsi(){
@@ -2739,7 +2795,11 @@ class Gestione_Corsi_Admin {
 		return get_option('sender_name');
 	}
 	public function mod_CalendarWidget($calendar_array, $args){
+		$Categorie=explode(",",$args["category"]);
+		if (in_array("-1",$Categorie))
+			return $calendar_array;
 		foreach($calendar_array['cells'] as $Key =>$Giorno){
+//			echo "<pre>";var_dump($args);echo "</pre>";
 //		var_dump($calendar_array['cells'][$Key]['events']);
 			$calendar_array['cells'][$Key]['events']=array();
 			$calendar_array['cells'][$Key]['link_title']="";

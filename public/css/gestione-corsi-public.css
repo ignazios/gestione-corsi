@@ -13,7 +13,7 @@ input[type="text"], input[type="email"], input[type="password"], textarea, selec
     -moz-border-radius: 3px;
     border-radius: 3px;
 }
-input[type="text"], input[type="email"], input[type="password"], input[type="checkbox"], textarea {
+input[type="text"], input[type="email"], input[type="password"], textarea {
 /*    -moz-appearance: none !important;*/
      appearance: none !important;
 }
@@ -55,4 +55,13 @@ i.infoCorso:hover, i.attestatoCorso:hover{
     display: block;
     margin: auto;
     width: 40%;
+}
+.event-categories, .event-categories li{
+	display:inline!important;
+}
+.em-booking-form-details input.input, .em-booking-form-details textarea, .aiowps-captcha label{
+    width: 100%!Important;
+}
+.em-booking-form label {
+	width:100%!important;
 }

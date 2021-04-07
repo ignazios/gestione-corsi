@@ -48,7 +48,6 @@ class Gestione_Documenti{
 	}
 	
 	protected function CreaStatisticheCorso($objPHPExcel,$Corso){
-//		echo "<pre>xx";var_dump($Corso->get_IDCorso());echo "</pre>";
 		$sheet = $objPHPExcel->createSheet();
 		$Totali=$Corso->get_TempoLezioni();
 		$OreMin=FUNZIONI::daMin_aOreMin($Totali[0]);
@@ -261,8 +260,21 @@ class Gestione_Documenti{
 		}
 		return $ElencoCorsi;
 	}
-	
+	public function cellColor($cells,$Color="",$BGcolor=""){
+	    global $objPHPExcel;
+		
+		if($BGcolor!="")
+		    $objPHPExcel->getActiveSheet()->getStyle($cells)->getFill()->applyFromArray(array(
+		        'type' => PHPExcel_Style_Fill::FILL_SOLID,
+		        'startcolor' => array('rgb' => $BGcolor),
+		    ));
+		if($Color!="")
+		    $objPHPExcel->getActiveSheet()->getStyle($cells)->applyFromArray(array(		
+				'font'  => array('color' => array('rgb' => $Color),),
+		     ));
+	}
 	public function CreaStatistiche(){
+		global $objPHPExcel;
 		$Dir=get_home_path()."wp-content/GestioneCorsi/Excel";
 		$Risultato=$this->crea_CartellaExcel($Dir,0711,"a");
 		if (!$Risultato){
@@ -282,6 +294,9 @@ class Gestione_Documenti{
 			$sheet->setCellValue($this->CalcColonna($Col++).$Riga, "Corso");
 			$sheet->setCellValue($this->CalcColonna($Col++).$Riga, "Categoria");
 			$sheet->setCellValue($this->CalcColonna($Col++).$Riga, "Codice");
+			$sheet->setCellValue($this->CalcColonna($Col++).$Riga, "Formatori");
+			$sheet->setCellValue($this->CalcColonna($Col++).$Riga, "Tutors");
+			$sheet->setCellValue($this->CalcColonna($Col++).$Riga, "Stato");
 			$sheet->setCellValue($this->CalcColonna($Col++).$Riga, 'Num. Iscritti');
 			$sheet->setCellValue($this->CalcColonna($Col++).$Riga, 'Num. Corsisti');
 			$sheet->setCellValue($this->CalcColonna($Col++).$Riga, 'Num. Lezioni');
@@ -294,26 +309,30 @@ class Gestione_Documenti{
 		$Riga++;
 		foreach($CorsiPeriodo as $CorsoP){
 			$Corso=new Gestione_Corso($CorsoP->event_id);
-			if($Corso->has_Post()){
-				$DatiCorso=$Corso->StatisticaCorso();
-				$Col=1;//=COLLEG.IPERTESTUALE(SOSTITUISCI(CELLA(\"indirizzo\";$Corso->get_CodiceCorso()!A1);\"'\";\"\");\"$Corso->get_CodiceCorso()\")
-				$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $DatiCorso['Nome_Corso']);
-				$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $DatiCorso['Categorie']);
-				$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $Corso->get_CodiceCorso());
-				$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $DatiCorso['Numero_Iscritti']);
-				$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $DatiCorso['Numero_Corsisti']);
-				$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $DatiCorso['Numero_Lezioni']);
-				$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $DatiCorso['LezioniFatte']);
-				$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $DatiCorso['Totale_Ore_Lezioni'].":00");
-				for($i=0;$i<=10;$i++){
-					$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $DatiCorso['Presenze%'][$i]);
-				}
-				foreach($DatiCorso['Lezioni'] as $Lezione){
-					$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $Lezione[0]."(".$Lezione[1].")");
-				}
-				$Riga++;
-				$this->CreaStatisticheCorso($objPHPExcel,$Corso);	
+			$DatiCorso=$Corso->StatisticaCorso();
+			$DocentiTutor=$Corso->get_DocentiTutorCorso();
+			$CorsoConsolidato=FUNZIONI::CorsoConsolidato($Corso);
+			$Col=1;//=COLLEG.IPERTESTUALE(SOSTITUISCI(CELLA(\"indirizzo\";$Corso->get_CodiceCorso()!A1);\"'\";\"\");\"$Corso->get_CodiceCorso()\")
+			$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $DatiCorso['Nome_Corso']);
+			$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $DatiCorso['Categorie']);
+			$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $Corso->get_CodiceCorso());
+			$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $DocentiTutor["Docenti"]);
+			$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $DocentiTutor["Tutor"]);
+			$this->cellColor($this->CalcColonna($Col).$Riga,($CorsoConsolidato?"":"FFFFFF"),($CorsoConsolidato?"00FF00":"FF0000"));
+			$sheet->setCellValue($this->CalcColonna($Col++).$Riga, ($CorsoConsolidato?"Chiuso":"Aperto"));
+			$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $DatiCorso['Numero_Iscritti']);
+			$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $DatiCorso['Numero_Corsisti']);
+			$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $DatiCorso['Numero_Lezioni']);
+			$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $DatiCorso['LezioniFatte']);
+			$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $DatiCorso['Totale_Ore_Lezioni'].":00");
+			for($i=0;$i<=10;$i++){
+				$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $DatiCorso['Presenze%'][$i]);
 			}
+			foreach($DatiCorso['Lezioni'] as $Lezione){
+				$sheet->setCellValue($this->CalcColonna($Col++).$Riga, $Lezione[0]."(".$Lezione[1].")");
+			}
+			$Riga++;
+			$this->CreaStatisticheCorso($objPHPExcel,$Corso);	
 		}					
 		$sheet->setTitle('Dati Corsi');
 
@@ -551,8 +570,7 @@ class Gestione_Documenti{
 		$pdf->Output('Registro_'.$Corso->get_NomeCorso().'.pdf', 'I');
 		
 	}
-	public function CreaAttestato($Corso,$Utente){
-		
+	public function CreaAttestato($Corso,$Utente,$Local=FALSE,$Dir=""){
 		$pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 
 		$pdf->set_Footer(FALSE);
@@ -620,11 +638,20 @@ class Gestione_Documenti{
 		$pdf->SetFont('helvetica', '', 8);
 		$pdf->writeHTML($Tabella, true, false, true, false, '');
 		// close and output PDF document
-		$pdf->Output('Attestato_Frequenza_'.$Corso->get_NomeCorso().'.pdf', 'I');
-		
+		if(!$Local)
+			$pdf->Output('Attestato_Frequenza_'.$Corso->get_NomeCorso().'.pdf', 'I');
+		else{
+			$Utenti=new Utenti($Utente);
+			$Docente=$Utenti->get_Descrizione();
+			$FileName=$Docente['Nome']." ".$Docente['Cognome']."_".$Corso->get_NomeCorso();
+			$pdf->Output($Dir.'/'.$FileName.'.pdf', 'F');
+			if(is_file($Dir.'/'.$FileName.'.pdf'))
+				return TRUE;
+			else
+				return FALSE;
+		}
 	}
 	public function CreaAttestati($Corso){
-		
 		$pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 		$pdf->set_Footer(FALSE);
 		$pdf->SetCreator(PDF_CREATOR);

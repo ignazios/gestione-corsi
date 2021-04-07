@@ -28,7 +28,7 @@
 	 * Although scripts in the WordPress core, Plugins and Themes may be
 	 * practising this, we should strive to set a better example in our own work.
 	 */
-        $(document).delegate('.em-bookings-cancel', 'click', function(){
+        $(document).on( 'click','.em-bookings-cancel', function(e){
             $.ajax({type: 'POST',
                     url: ajaxurl, 
                     data:{
@@ -42,8 +42,8 @@
                     }
             }); 
         });
-        $(document).delegate('.attestatoCorsoxxx', 'click', function(){
-              var dati = $(this).attr('id').split(";");
+        $(document).on( 'click','.attestatoCorsoxxx', function(e){
+               var dati = $(this).attr('id').split(";");
               $.ajax({type: 'POST',
                     url: ajaxurl, 
                     data:{
@@ -59,8 +59,8 @@
                     }
             }); 
         });
-        $(document).delegate('.infoCorso', 'click', function(){
-            $( ".infoCorso" ).each(function() {
+        $(document).on( 'click','.infoCorso', function(e){
+             $( ".infoCorso" ).each(function() {
                 if ($("#Info"+ $(this).attr("id")).is(":visible")) {
                     $("#Info"+ $(this).attr("id")).fadeOut('fast');;
                 } else {
@@ -68,7 +68,7 @@
                 }
             });
         });
-        $(document).delegate('.em-bookings-approve,.em-bookings-reject,.em-bookings-unapprove,.em-bookings-delete', 'click', function(){
+        $(document).on( 'click','.em-bookings-approve,.em-bookings-reject,.em-bookings-unapprove,.em-bookings-delete', function(e){
               $.ajax({type: 'POST',
                     url: ajaxurl, 
                     data:{

@@ -87,14 +87,14 @@
                 }
             });
         });
-        $(document).delegate('.calendario', 'focus', function(){
+        $(document).on( 'focus','.calendario', function(){
             $(this).datepicker({ dateFormat: "dd/mm/yy"});
         });
-        $(document).delegate('.EliminaRigaAttivita', 'click', function(e){
+        $(document).on( 'click','.EliminaRigaAttivita', function(e){
             e.preventDefault();
             $(this).parent().remove();
         });
-        $(document).delegate('.orario', 'change', function(e){
+        $(document).on('change','.orario',  function(e){
             e.preventDefault();
             var curItem=$(this).parent().attr("data");
             var Inizio=$("#orainizio_"+curItem+" option:selected").val();
@@ -123,14 +123,14 @@
             }
             $("#OreTotaliLezioni").html("<span style=\""+Stile+"\">"+DaMinAOreMin(TotMinuti)+"</span>");
         });                
-        $(document).delegate('#ore_lezioni', 'change', function(e){
+        $(document).on('change','#ore_lezioni',  function(e){
             var Stile="color:green;font-weight: bold;";
             if($("#OreTotaliLezioni").text()!=$("#ore_lezioni").val()){
                 Stile="color:red;font-weight: bold;";
             }
             $("#OreTotaliLezioni").html("<span style=\""+Stile+"\">"+$("#OreTotaliLezioni").text()+"</span>");
         });
-        $(document).delegate('.CopiaOraInizio1', 'click', function(e){
+        $(document).on('click','.CopiaOraInizio1',  function(e){
             e.preventDefault();
             var numItems = $('.calendario').length;
             var curItem=$(this).attr("data");
@@ -140,7 +140,7 @@
             }
             aggOreLezioneComplessive();
         });
-        $(document).delegate('.CopiaOraFine1', 'click', function(e){
+        $(document).on( 'click','.CopiaOraFine1', function(e){
             e.preventDefault();
             var numItems = $('.calendario').length;
             var curItem=$(this).attr("data");
@@ -150,7 +150,7 @@
             }
             aggOreLezioneComplessive();
         });
-        $(document).delegate('.CopiaOraInizio2', 'click', function(e){
+        $(document).on('click','.CopiaOraInizio2',  function(e){
             e.preventDefault();
             var numItems = $('.calendario').length;
             var curItem=$(this).attr("data");
@@ -160,7 +160,7 @@
             }
             aggOreLezioneComplessive();
         });
-        $(document).delegate('.CopiaOraFine2', 'click', function(e){
+        $(document).on( 'click','.CopiaOraFine2', function(e){
             e.preventDefault();
             var numItems = $('.calendario').length;
             var curItem=$(this).attr("data");
@@ -170,19 +170,19 @@
             }
             aggOreLezioneComplessive();
         });
-        $(document).delegate('.EliminaRiga', 'click', function(e){
+        $(document).on('click','.EliminaRiga',  function(e){
             e.preventDefault();
             $(this).parent().remove();
         });
-        $(document).delegate('.EliminaDocente', 'click', function(e){
+        $(document).on( 'click','.EliminaDocente', function(e){
             e.preventDefault();
             $(this).parent().remove();
         });
-        $(document).delegate('.EliminaTutor', 'click', function(e){
+        $(document).on( 'click','.EliminaTutor', function(e){
             e.preventDefault();
             $(this).parent().remove();
         });
-        $(document).delegate('#AvviaStatistiche', 'click', function(){
+        $(document).on( 'click','#AvviaStatistiche', function(){
 //            var NumeroCorsi=$("#NumCorsi").val();
             var Corsi=$("#IDCorsi").val().split(";");
             $("#progressbar").progressbar({
@@ -214,7 +214,7 @@
                 }); 
             }
         });
-        $(document).delegate('.em-bookings-approve,.em-bookings-reject,.em-bookings-unapprove,.em-bookings-delete', 'click', function(){
+        $(document).on( 'click','.em-bookings-approve,.em-bookings-reject,.em-bookings-unapprove,.em-bookings-delete', function(){
               $.ajax({type: 'POST',
                     url: ajaxurl, 
                     data:{
@@ -229,7 +229,7 @@
             }); 
         });
 
-    $(document).delegate('.fa-cloud', 'click',function(){
+    $(document).on( 'click','.fa-cloud',function(){
         if($(this).attr('data-enabled')=="Si"){
             var curElem=$(this);
             var dati = $(this).attr('id').split("x");
@@ -313,7 +313,7 @@
         }
     });
 
-    $(document).delegate('.fa-clock', 'click',function(){
+    $(document).on('click','.fa-clock', function(){
         if($(this).attr('data-enabled')=="Si"){
             var curElem=$(this);
             var dati = $(this).attr('id').split("x");
@@ -405,7 +405,7 @@
             });
         }
     });
-    $(document).delegate('.Assente', 'click',function(){
+    $(document).on( 'click','.Assente',function(){
         if($(this).attr('data-enabled')=="Si"){
             var curElem=$(this);
             var dati = $(this).attr('id').split("x");
@@ -449,7 +449,7 @@
             }); 
         }
     });
-    $(document).delegate('.Presente', 'click',function(){
+    $(document).on( 'click','.Presente',function(){
         if($(this).attr('data-enabled')=="Si"){
            var curElem=$(this);
             var dati = $(this).attr('id').split("x");
@@ -493,7 +493,7 @@
         }
     });    
 
-    $(document).delegate('.fa-info-circle', 'click',function(){
+    $(document).on( 'click','.fa-info-circle',function(){
         if($(this).attr('data-enabled')=="Si"){
             var curElem=$(this);
             var dati = $(this).attr('id').split("x");
@@ -594,7 +594,7 @@
 
 
     $(function () {             
-        $(".registro").click(function(e){
+        $(".registro").on("click",function(e){
             var dati = $(this).attr('id').split(";");
             $("#DataLezione").val(dati[2]);
             $.ajax({timeout:0,
@@ -643,10 +643,10 @@
             tinyMCE.activeEditor.setContent(Argomenti);
             $("#dialog-form-lezione").css("display", "block");
 */        });
-        $("#AnnullaArgomenti").click(function(e){
+        $("#AnnullaArgomenti").on("click",function(e){
             $("#dialog-form-lezione").css("display", "none");
         });
-        $("#MemorizzaArgomenti").click(function(e){
+        $("#MemorizzaArgomenti").on("click",function(e){
               $.ajax({type: "post",
                      url: ajaxurl,
                     data: { security:ajaxsec,
@@ -681,7 +681,7 @@
                     }
                 })            
         });        
-        $("#CancellaArgomenti").click(function(e){
+        $("#CancellaArgomenti").on("click",function(e){
               $.ajax({type: "post",
                      url: ajaxurl,
                     data: { security:ajaxsec,
@@ -716,7 +716,7 @@
                     }
                 })            
         });                        
-            $("#AddDocente").click(function(e){
+            $("#AddDocente").on("click",function(e){
                 var ElencoDocFor=JSON.parse($("#ElementiListaDocTutor").val());
                 var numItems = $('.docenti').length + 1;
                 var ListaDocFor="";
@@ -728,7 +728,7 @@
                     <label><strong>Docente</strong></label> <select name=\"docente["+numItems+"]\" id=\"docente["+numItems+"]\" class=\"docenti\">"+ListaDocFor+"</select>  <a href=\"#\" class=\"EliminaDocente PulsDel\"><i class=\"fas fa-user-times\"></i></a>\n\
                      </div>");
             });            
-            $("#AddTutor").click(function(e){
+            $("#AddTutor").on("click",function(e){
                 var ElencoDocFor=JSON.parse($("#ElementiListaDocTutor").val());
                 var numItems = $('.tutor').length + 1;
                 var ListaDocFor="";
@@ -740,7 +740,7 @@
                     <label><strong>Tutor</strong></label> <select name=\"tutor["+numItems+"]\" id=\"tutor["+numItems+"]\" class=\"tutor\">"+ListaDocFor+"</select>  <a href=\"#\" class=\"EliminaTutor PulsDel\"><i class=\"fas fa-user-times\"></i></a>\n\
                      </div>");
             });
-            $("#AddData").click(function(e){
+            $("#AddData").on("click",function(e){
                 var numItems = $('.calendario').length;
                 var Ore=[{'1':'00:00'},{'2':'00:30'},{'3':'01:00'},{'4':'01:30'},{'5':'02:00'},{'6':'02:30'},{'7':'03:00'},{'8':'03:30'},{'9':'04:00'},{'10':'04:30'},{'11':'05:00'},{'12':'05:30'},{'13':'06:00'},{'14':'06:30'},{'15':'07:00'},{'16':'07:30'},{'17':'08:00'},
 {'18':'08:30'},{'19':'09:00'},{'20':'09:30'},{'21':'10:00'},{'22':'10:30'},{'23':'11:00'},{'24':'11:30'},{'25':'12:00'},{'26':'12:30'},{'27':'13:00'},{'28':'13:30'},{'29':'14:00'},{'30':'14:30'},{'31':'15:00'},{'32':'15:30'},{'33':'16:00'},{'34':'16:30'},
@@ -763,7 +763,7 @@
                      </div>");
             });
 
-            $("#AddAttivita").click(function(e){
+            $("#AddAttivita").on("click",function(e){
                 var numItems = $('.desatt').length;
                 e.preventDefault();
                 $("#attivita").append("<div id=\"Attivita["+numItems+"]\" >\n\
@@ -869,16 +869,59 @@
                  ]
             });
 
+   // Initialize appendGrid
+            $('#GridUtentiNoScuola').appendGrid({
+                maxBodyHeight: 100,
+                maintainScroll: true,
+                caption: 'Utenti',
+                initRows: 1,
+                hideButtons: {
+                    moveUp: true,
+                    moveDown: true,
+                    insert:true,
+                },
+                columns: [
+                    { name: 'nome', display: 'Nome', type: 'text', ctrlAttr: { maxlength: 100 }, ctrlCss: { width: '150px'},
+                      onChange: function (evt, rowIndex) {
+                           if( !isLunghezza($("#GridUtentiNoScuola_nome_"+(rowIndex+1)).val(),3,0)){
+                               $("#GridUtentiNoScuola_nome_"+(rowIndex+1)).focus();
+                                alert("Il campo Nome deve contenere almeno 3 caratteri");
+                            }
+                        }},
+                    { name: 'cognome', display: 'Cognome', type: 'text', ctrlAttr: { maxlength: 100 }, ctrlCss: { width: '150px'},
+                      onChange: function (evt, rowIndex) {
+                           if( !isLunghezza($("#GridUtentiNoScuola_cognome_"+(rowIndex+1)).val(),3,0)){
+                                $("#GridUtentiNoScuola_cognome_"+(rowIndex+1)).focus();
+                                alert("Il campo Cognome deve contenere almeno 3 caratteri");
+                            }
+                        }},
+                    { name: 'email', display: 'Email', type: 'email', ctrlAttr: { maxlength: 100 }, ctrlCss: { width: '100px'},
+                      onChange: function (evt, rowIndex) {
+                           if( !isValidEmail($("#GridUtentiNoScuola_email_"+(rowIndex+1)).val())){
+                                $("#GridUtentiNoScuola_email_"+(rowIndex+1)).focus();
+                                alert("Il campo Email deve contenere un indirizzo email valido nel formato indirizzo@dominio.ext");
+                            }
+                        }},
+                    { name: 'codicefiscale', display: 'Codice Fiscale', type: 'text',ctrlAttr: { maxlength: 16 }, ctrlCss: { width: '150px'}  ,
+                      onChange: function (evt, rowIndex) {
+                           if( !isLunghezza($("#GridUtentiNoScuola_codicefiscale_"+(rowIndex+1)).val(),16,16)){
+                                $("#GridUtentiNoScuola_codicefiscale_"+(rowIndex+1)).focus();
+                                alert("Il campo Codice Fiscale deve contenere 16 caratteri");
+                            }
+                        }}
+                 ]
+            });
+
             // Handle `Serialize` button click
 //            $('#btnSerialize').button().click(function () {
 //               $('#divErrorPlacement').val($(document.forms['#ImportazioneUtenti']).serialize());
 //           });
-        $('#verificaDati').button().click(function () {
+        $('#verificaDati').button().on("click",function () {
             $("#ElaborazioneTabella").show();
             $.ajax({type: 'POST',
                     url: ajaxurl, 
-                    security:ajaxsec,
                     data:{
+                    	security:ajaxsec,
                         action:'VerificaNuoviUtenti',
                         valori:$(document.forms['0']).serialize()
                     },
@@ -899,38 +942,142 @@
 
                 }); 
             });
-        $('#verificaDatiExcel').button().click(function () {
+        $('#verificaCFExcel').button().on("click",function () {
+            $("#ElaborazioneExcel2").show();
+            $.ajax({type: 'POST',
+                    url: ajaxurl, 
+                    data:{
+                    	security:ajaxsec,
+                        action:'VerificaCFUtentiExcel',
+                        valori:$("#CFExcelImportati").val(),
+	                    
+                   },
+                    beforeSend: function() {
+                        $("#ElaborazioneExcel2").show();
+                    },
+                    success: function(risposta){
+                        $('#divCFRisultato').empty().append(risposta);
+                        if( $('#PassaggioCFSuccessivo').val()=="Si"){
+                              $("#creaCFExcel").button( "enable" );
+                        }
+                        $("#ElaborazioneExcel2").hide();
+                    },                   
+                    error: function(error) { 
+                        $('#divCFRisultato').empty().append("Errore");
+                        $("#ElaborazioneExcel2").hide();
+                    }
+
+                }); 
+            });
+        $('#creaCFExcel').button().on("click",function () {
             $("#ElaborazioneExcel").show();
             $.ajax({type: 'POST',
                     url: ajaxurl, 
-                    security:ajaxsec,
                     data:{
-                        action:'VerificaNuoviUtentiExcel',
-                        valori:$("#DatiExcelImportati").val()
+                    	security:ajaxsec,
+                        action:'CreaCFUtentiExcel',
+                        valori:$("#PSCF").val()
                     },
                     beforeSend: function() {
                         $("#ElaborazioneExcel").show();
                     },
                     success: function(risposta){
-                        $('#divRisultato').empty().append(risposta);
-                        if( $('#PassaggioSuccessivo').val()=="Si"){
-                              $("#creaUtentiExcel").button( "enable" );
-                        }
+                        $('#divCFRisultato').empty().append(risposta);
                         $("#ElaborazioneExcel").hide();
                     },                   
                     error: function(error) { 
-                        $('#divRisultato').empty().append("Errore");
+                        $('#divCFRisultato').empty().append("Errore");
                         $("#ElaborazioneExcel").hide();
                     }
 
                 }); 
             });
-        $('#creaUtentiExcel').button().click(function () {
+         $('#verificaCFExcel').button().on("click",function () {
+            $("#ElaborazioneExcel2").show();
+            $.ajax({type: 'POST',
+                    url: ajaxurl, 
+                    data:{
+                    	security:ajaxsec,
+                        action:'VerificaCFUtentiExcel',
+                        valori:$("#CFExcelImportati").val(),
+	                    
+                   },
+                    beforeSend: function() {
+                        $("#ElaborazioneExcel2").show();
+                    },
+                    success: function(risposta){
+                        $('#divCFRisultato').empty().append(risposta);
+                        if( $('#PassaggioCFSuccessivo').val()=="Si"){
+                              $("#creaCFExcel").button( "enable" );
+                        }
+                        $("#ElaborazioneExcel2").hide();
+                    },                   
+                    error: function(error) { 
+                        $('#divCFRisultato').empty().append("Errore");
+                        $("#ElaborazioneExcel2").hide();
+                    }
+
+                }); 
+            });
+        
+      $('#FondiAccount').button().on("click",function () {
+            $("#ElaborazioneExcel").show();
+             $.ajax({type: 'POST',
+                    url: ajaxurl, 
+                    data:{
+                    	security:ajaxsec,
+                        action:'FondiAccount',
+                        UID1:$("#UserID1").val(),
+                        UID2:$("#UserID2").val()
+                    },
+                    beforeSend: function() {
+                        $("#ElaborazioneExcel").show();
+                    },
+                    success: function(risposta){
+                        $('#divFondiRisultato').empty().append(risposta);
+                        $("#ElaborazioneExcel").hide();
+                    },                   
+                    error: function(error) { 
+                        $('#divFondiRisultato').empty().append("Errore");
+                        $("#ElaborazioneExcel").hide();
+                    }
+
+                }); 
+            });        
+        
+        
+        
+      $('#CaricaCorsiFondi').button().on("click",function () {
+            $("#ElaborazioneExcel").show();
+            $("#TestoBottone").html(" Fondi i due Account in <span class='emailDest'>"+$("#email2").val()+"</span>");
+             $.ajax({type: 'POST',
+                    url: ajaxurl, 
+                    data:{
+                    	security:ajaxsec,
+                        action:'CaricaDatiDaFondere',
+                        account1:$("#email1").val(),
+                        account2:$("#email2").val()
+                    },
+                    beforeSend: function() {
+                        $("#ElaborazioneExcel").show();
+                    },
+                    success: function(risposta){
+                        $('#divFondiRisultato').empty().append(risposta);
+                        $("#ElaborazioneExcel").hide();
+                    },                   
+                    error: function(error) { 
+                        $('#divFondiRisultato').empty().append("Errore");
+                        $("#ElaborazioneExcel").hide();
+                    }
+
+                }); 
+            });
+        $('#creaUtentiExcel').button().on("click",function () {
             $("#ElaborazioneExcel").show();
             $.ajax({type: 'POST',
                     url: ajaxurl, 
-                    security:ajaxsec,
                     data:{
+                    	security:ajaxsec,
                         action:'CreaNuoviUtentiExcel',
                         valori:$("#PSDati").val()
                     },
@@ -948,11 +1095,12 @@
 
                 }); 
             });        
-        $('#creaUtenti').button().click(function (){
+        $('#creaUtenti').button().on("click",function (){
            $("#ElaborazioneExcel").show();
            $.ajax({type: 'POST',
                     url: ajaxurl, 
                     data:{
+                    	security:ajaxsec,
                         action:'CreaNuoviUtenti',
                         valori:$("#PSDatiL").val()
                     },
@@ -969,7 +1117,93 @@
                     }
 
                 }); 
-            });        
+            });   
+    	$('#generaAll').change(function(){
+    		var status = $(this).prop("checked") ? true : false;
+  			$('#ElencoCorsisti').find(':checkbox.genera').prop("checked",status);
+  			$('#ElencoCorsisti').find(':checkbox.invia').prop("checked",false);
+  			$('#inviaAll').prop("checked",false);
+ 		});
+    	$('#inviaAll').change(function(){
+    		var status = $(this).prop("checked") ? true : false;
+  			$('#ElencoCorsisti').find(':checkbox.invia').prop("checked",status);
+  			$('#ElencoCorsisti').find(':checkbox.genera').prop("checked",false);
+  			$('#generaAll').prop("checked",false);
+ 		});
+ 		$('#esegui').click(function(){
+ 			$.ajax({type: 'POST',
+                    url: ajaxurl, 
+                    data:{
+                    	security:ajaxsec,
+                        action:'CreaCartellaZip',
+                        TitoloCorso:$("#TitoloCorso").val()
+                    },
+                    success: function(risposta){
+                        if(risposta=="Si"){
+                        	$("#NumAttestati").val(0);
+	                        $('#ElencoCorsisti').find(':checkbox.genera').each(function( index ) {
+					  			var id=$( this ).attr("name");
+					  			var idd=id.substring(0,id.length - 4);
+					  			if($(this).prop("checked")){
+					  				$.ajax({type: 'POST',
+					                    url: ajaxurl, 
+					                    data:{
+					                    	security:ajaxsec,
+					                        action:'CreaAttestatoSingolo',
+					                        TitoloCorso:$("#TitoloCorso").val(),
+					                        Corso:$("#IDCorso").val(),
+					                        User:$( this ).attr("name")
+					                    },
+					                    success: function(risposta){
+					                        if(risposta=="Si"){
+												$("#"+idd+"stato").text("Certificato Creato");
+												$("#"+idd+"stato").removeClass("SemaforoGiallo");
+												$("#"+idd+"stato").addClass("SemaforoVerde");
+												
+											}
+					                    },
+					                    async:false,
+					                    complete: function (data) {
+      										var na=$("#NumAttestati").val();
+												na++;
+												$("#NumAttestati").val(na);
+     									},
+					                    error: function(jqXHR, textStatus, errorThrown) { 
+					                    	("#"+idd+"stato").text(jqXHR.status+" - "+ textStatus + " Impossibile creare il certificato");
+											$("#"+idd+"stato").removeClass("SemaforoGiallo");
+											$("#"+idd+"stato").addClass("SemaforoRosso");
+					                    }
+                					}); 
+								}
+							});
+							if($("#NumAttestati").val()>0){
+								$.ajax({type: 'POST',
+					                    url: ajaxurl, 
+					                    data:{
+					                    	security:ajaxsec,
+					                        action:'CreaZIPAttestati',
+					                        TitoloCorso:$("#TitoloCorso").val(),
+					                    },
+					                    success: function(risposta){
+					                        if(risposta==""){
+					                        	alert("SI è verificato un problema in fase di creazione dell'archivio degli Attestati");
+											}else{
+												window.location.href = $("#URLPag").val()+"&file="+risposta;		
+											}
+					                    },
+					                    async:false,
+					                    error: function(jqXHR, textStatus, errorThrown) { 
+					                    	alert(jqXHR.status+" - "+ textStatus + "\nImpossibile creare l'archivio Zippato dei certificati");
+					                    }
+                					}); 
+							}
+						}
+                    },
+                    error: function(error) { 
+                        alert("Impossibile creare la cartella per la creazione dei certificati");
+                    }
+                }); 
+		});
     });
  
 })( jQuery );
@@ -1140,7 +1374,7 @@
 }(jQuery);
 jQuery(document).ready(function($){
     var custom_uploader;
-    $('#logo_upload').click(function(e) {
+    $('#logo_upload').on("click",function(e) {
         e.preventDefault();
         //If the uploader object has already been created, reopen the dialog
         if (custom_uploader) {

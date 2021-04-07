@@ -88,13 +88,14 @@ class Utenti {
 		$actions['export_log_email'] = "<a href='$link'><span class=\"dashicons dashicons-download\"></span> log email</a>";
 		return $actions;		
 	}
-	/**
+	/*
 	* Metodo che permette di estrarre le informazioni di uno specifico utente e restiuisce :
 	* Id, Nome, Cognome, Codice FIscale, Email, Codice Meccanografico Scuola e Nome Scuola
 	* @param type $IdUtente ID dell'utenteda cui estrarre le informazioni
 	* @return array se l'utente viene trovato altrimenti FALSE
 	*/
-	public function get_Descrizione($IdUtente=0){
+	public function get_Descrizione($IdUtente=0,$UserMail=""){
+		$GestScuole= get_option('gestione_scuole'); 
 		if($IdUtente==0){
 			$IdUtente=$this->ID_Utente;			
 		}
@@ -102,18 +103,33 @@ class Utenti {
 		if ( ! function_exists( 'get_user_by' ) ){
 	 		require_once( ABSPATH . 'wp-includes/pluggable.php' );			
 		}
-		$Utente= get_user_by("ID", $IdUtente);
+		if($UserMail=="")
+			$Utente= get_user_by("ID", $IdUtente);
+		else{
+			$Utente= get_user_by("email", $UserMail);
+			$IdUtente=$Utente->ID;
+		}
 		if($Utente){
-			$Scuola=get_user_meta($IdUtente, "Scuola",TRUE);
-			$Ritorno=array(
-				"Id"		=>$IdUtente,
-				"Nome"      => ucwords(strtolower($Utente->first_name)),
-				"Cognome"   => ucwords(strtolower($Utente->last_name)),
-				"CF"		=> get_user_meta($IdUtente, "CF",TRUE),
-				"Email"		=> $Utente->user_email,
-				"Scuola"    => $Scuola,
-				"NomeScuola"=> $DatiScuole->get_Scuola($Scuola)
-			);			
+			if($GestScuole=="Si"){
+				$Scuola=get_user_meta($IdUtente, "Scuola",TRUE);
+				$Ritorno=array(
+					"Id"		=>$IdUtente,
+					"Nome"      => ucwords(strtolower($Utente->first_name)),
+					"Cognome"   => ucwords(strtolower($Utente->last_name)),
+					"CF"		=> get_user_meta($IdUtente, "CF",TRUE),
+					"Email"		=> $Utente->user_email,
+					"NomeScuola"=> $DatiScuole->get_Scuola($Scuola)
+				);
+			}else
+				$Ritorno=array(
+					"Id"		=>$IdUtente,
+					"Nome"      => ucwords(strtolower($Utente->first_name)),
+					"Cognome"   => ucwords(strtolower($Utente->last_name)),
+					"CF"		=> get_user_meta($IdUtente, "CF",TRUE),
+					"Email"		=> $Utente->user_email,
+					"Scuola"    => $Scuola,
+					"NomeScuola"=> $DatiScuole->get_Scuola($Scuola)
+				);			
 			return $Ritorno;
 		}else{
 			return FALSE;
@@ -127,18 +143,21 @@ class Utenti {
 	
 	public function CreaUtenti(){
 		$plugin_scuole = new Scuole();
+		$GestScuole= get_option('gestione_scuole'); 
 	?>	
 	<div class="wrap" id="FormCreaUtenti">
-	    <h2>Utenti da importare</h2>
+	    <h2>Gestione Utenti</h2>
 		<div id="tabcreautentis">
 		<ul>
 		  <li><a href="#tabcreautentis-1">Crea Utenti</a></li>
 		  <li><a href="#tabcreautentis-2">Importa da Excel</a></li>
+		  <li><a href="#tabcreautentis-3">Importa Codice Fiscale Utenti</a></li>
+		  <li><a href="#tabcreautentis-4">Fondi Account Utenti</a></li>
 		</ul>
 		<div id="tabcreautentis-1">		
 			<form action="" method="post" id="ImportazioneUtenti">
 			<?php echo '<input type="hidden" id="CodiciScuole" value="'. $plugin_scuole->getElencoScuole("String","","","").'"/>';?>
-				<table id="GridUtenti"></table>
+				<table id=<?php echo ($GestScuole=="Si"?"GridUtenti":"GridUtentiNoScuola");?>></table>
 				<button type="button" id="verificaDati" >Verifica Dati</button>
 				<button type="button" id="creaUtenti" disabled>Crea Utenti</button>
 			<div style="font-weight: bold;">
@@ -165,6 +184,28 @@ class Utenti {
 			<div id="divRisultato" style="border: 1px solid #0000ff;height: 200px;overflow: auto;width: 100%;background-color: #fff;margin-top:5px;">
 			</div>
 		</div>
+		<div id="tabcreautentis-3">
+			<div style="width: 200px;height: 200px;position: absolute;top: 50%;left: 50%; margin-top: -100px; margin-left: -100px;display:none;" >
+				<img src="<?php echo plugin_dir_url( __FILE__ ) . 'css/images/ElaborazioneInCorso.gif'?>" id="ElaborazioneExcel2"/>
+			</div>
+			<p>Incollare nel sottostante campo la tabella copiata dal foglio di calcolo contenete le seguenti colonne: Email - Codice Fiscale<br />
+				Incollare solo i valori e non la riga con i nomi dei campi
+			</p>
+			<textarea style="width:100%;height: 250px;" id="CFExcelImportati"></textarea>
+			<button type="button" id="verificaCFExcel" >Verifica Dati</button>
+			<button type="button" id="creaCFExcel" disabled>Aggiorna Codice Fiscale</button>
+			<div id="divCFRisultato" style="border: 1px solid #0000ff;height: 200px;overflow: auto;width: 100%;background-color: #fff;margin-top:5px;">
+			</div>
+		</div>
+		<div id="tabcreautentis-4">
+			<input type="text" name="email1" value="" id="email1" size="40">
+			<input type="text" name="email2" value="" id="email2" size="40">
+			<button type="button" id="CaricaCorsiFondi" >Carica Dati</button>
+			<div id="divFondiRisultato" style="border: 1px solid #0000ff;min-height:300px;width: 100%;background-color: #fff;margin-top:5px;">
+			</div>	
+			<button class="button" id="FondiAccount" style="vertical-align:middle;color:#A62426;margin-top:2em;height:5em;">
+				<i class="fa fa-code-branch fa-2x" aria-hidden="true"></i><span id="TestoBottone">Fondi Account</span>
+			</button>
 		</div>
 	</div>
 <?php
@@ -179,8 +220,10 @@ class Utenti {
 	public function utenti_crea_extra_profile_fields( $user ) { 
 
 		$plugin_scuole = new Scuole();
+		$GestScuole= get_option('gestione_scuole'); 
 
-		$Scuole=get_option("Corsi_CM_scuole","");
+		if($GestScuole=="Si")
+			$Scuole=get_option("Corsi_CM_scuole","");
 		$Lista=explode("\n",$Scuole);
 		$TestoLista="<option value=''>Scuola non assegnata</option>";
 		$CF= get_user_meta($user->ID,"CF",true);
@@ -190,7 +233,7 @@ class Utenti {
 		<h3>Informazioni aggiuntive Utente</h3>
 
 		<table class="form-table">
-
+<?php if($GestScuole=="Si"):?>
 			<tr>
 				<th><label for="Scuola">Scuola di appartenenza</label></th>
 
@@ -200,6 +243,7 @@ class Utenti {
 					<span class="description">Per favore inserisci il codice della scuola di appartenenza.</span>
 				</td>
 			</tr>
+<?php endif;?>
 			<tr>
 				<th><label for="Scuola">Codice Fiscale</label></th>
 
@@ -222,8 +266,9 @@ class Utenti {
 
 		if ( !current_user_can( 'edit_user', $user_id ) )
 			return false;
-
-		update_user_meta( absint( $user_id ), 'Scuola',		wp_kses_post( $_POST['Scuola'] ) );
+		$GestScuole= get_option('gestione_scuole'); 
+		if($GestScuole=="Si")
+			update_user_meta( absint( $user_id ), 'Scuola',		wp_kses_post( $_POST['Scuola'] ) );
 		update_user_meta( absint( $user_id ), 'CF',			wp_kses_post( $_POST['CF'] ) );
 //		update_user_meta( absint( $user_id ), 'last_name',  wp_kses_post( $_POST['user_cognome'] ) );
 		

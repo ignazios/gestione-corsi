@@ -234,6 +234,8 @@ class Gestione_Corsi {
 		$this->loader->add_action( 'wp_ajax_VerificaNuoviUtenti',				$plugin_ajax,    'VerificaNuoviUtenti' );
 		$this->loader->add_action( 'wp_ajax_CreaNuoviUtenti',					$plugin_ajax,    'CreaNuoviUtenti' );
 		$this->loader->add_action( 'wp_ajax_VerificaNuoviUtentiExcel',			$plugin_ajax,    'VerificaNuoviUtentiExcel' );
+		$this->loader->add_action( 'wp_ajax_VerificaCFUtentiExcel',				$plugin_ajax,    'VerificaCFUtentiExcel' );
+		$this->loader->add_action( 'wp_ajax_CreaCFUtentiExcel',					$plugin_ajax,    'CreaCFUtenti' );
 		$this->loader->add_action( 'wp_ajax_CreaNuoviUtentiExcel',				$plugin_ajax,    'CreaNuoviUtenti' );
 		$this->loader->add_action( 'wp_ajax_CorsoSetPresenza',					$plugin_ajax,    'CorsoSetPresenza' );
 		$this->loader->add_action( 'wp_ajax_CorsoSetAssenza',					$plugin_ajax,    'CorsoSetAssenza' );
@@ -245,6 +247,13 @@ class Gestione_Corsi {
 		$this->loader->add_action( 'wp_ajax_ArgomentiLezione',					$plugin_ajax,    'GetArgomentiLezione',10,0 );
 		$this->loader->add_action( 'wp_ajax_StatisticheTitoloCorso',			$plugin_ajax,    'StatisticheTitoloCorso',10,0 );
 		$this->loader->add_action( 'wp_ajax_StatisticheTabellaCorso',			$plugin_ajax,    'StatisticheTabellaCorso',10,0 );
+		$this->loader->add_action( 'wp_ajax_FiltroCorsista',					$plugin_ajax,    'FiltroCorsista',10,0 );
+		$this->loader->add_action( 'wp_ajax_AddUserByEmail',					$plugin_ajax,    'AddUserByEmail',10,0 );
+		$this->loader->add_action( 'wp_ajax_CaricaDatiDaFondere',				$plugin_ajax,    'CaricaDatiDaFondere',10,0 );
+		$this->loader->add_action( 'wp_ajax_FondiAccount',						$plugin_ajax,    'FondiAccount',10,0 );
+		$this->loader->add_action( 'wp_ajax_CreaCartellaZip',					$plugin_ajax,    'CreaCartellaZip',10,0 );
+		$this->loader->add_action( 'wp_ajax_CreaAttestatoSingolo',				$plugin_ajax,    'CreaAttestatoSingolo',10,0 );
+		$this->loader->add_action( 'wp_ajax_CreaZIPAttestati',					$plugin_ajax,    'CreaZIPAttestati',10,0 );
 		$this->loader->add_action( 'admin_head-gestione-corsi_page_statistiche',$plugin_admin,   'HeadStatistiche');
 		$this->loader->add_action( 'admin_menu',								$plugin_admin,   'Menu_Corsi');
 		$this->loader->add_action( 'show_user_profile',							$plugin_utenti,  'utenti_crea_extra_profile_fields');
@@ -268,7 +277,9 @@ class Gestione_Corsi {
 		$this->loader->add_action( 'manage_event_posts_custom_column',			$plugin_admin,   'Eventi_NuoveColonneContenuto',10,2);
 		$this->loader->add_action( 'init',										$plugin_admin,   'my_docs_init',12,1);
 		$this->loader->add_filter( 'em_event_output',							$plugin_admin,	 'My_lista_eventi_personalizzati',10,4);
-		
+		$this->loader->add_filter( 'em_event_output_show_condition',			$plugin_admin,	 'My_condizioni_eventi_personalizzati',10,4);
+		$this->loader->add_filter( 'em_event_output_condition',					$plugin_admin,	 'My_output_eventi_personalizzati',10,4);
+				
 		include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 		if(is_plugin_active('email-log/email-log.php')){
 			$this->loader->add_action( 'user_row_actions',						$plugin_utenti,   'Log_user_email',10,2);

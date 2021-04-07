@@ -17,7 +17,33 @@ jQuery(document).ready(function($){
             },                   
        }); 
     });
-    $("#ButtonSubmit").click(function(e){
+    $("#CercaSubmit").on("click",function(e){
+		$.ajax({type: 'POST',
+		url: ajaxurl,
+		data:{
+			action:'FiltroCorsista',
+			corsista:$("#search_corsista-input").val(),
+			security:ajaxsec
+		},
+		success: function(risposta) {
+			$("#UtentiDisp").html(risposta);
+		},
+		});
+ 	});
+    $("#AddUserByEmail").on("click",function(e){
+		$.ajax({type: 'POST',
+		url: ajaxurl,
+		data:{
+			action:'AddUserByEmail',
+			elencomail:$("#elencoMail").serialize(),
+			security:ajaxsec
+		},
+		success: function(risposta) {
+			$("#UtentiDisp").html(risposta);
+		},
+		});
+ 	});
+    $("#ButtonSubmit").on("click",function(e){
        if($('#UtentiAss li').length==0){
             alert("Devi selezionare almenu un iscritto da assegnare");
             return false;        
@@ -29,7 +55,7 @@ jQuery(document).ready(function($){
         var utenti=UtentiArray.join(); 
         $('#FormIscritti').append( '<input type="hidden" name="Iscritti" value="'+utenti+'"/>' );
      });
-    $("#ButtonSubmitMigra").click(function(e){
+    $("#ButtonSubmitMigra").on("click",function(e){
         if($('#UtentiTra li').length==0){
             alert("Devi selezionare almenu un corsista da trasferire");
             return false;        
@@ -182,7 +208,7 @@ jQuery(document).ready(function($){
             $.ajax(opts);
         }
     });
-     $("#ButtonSubmitFormatori").click(function(e){
+     $("#ButtonSubmitFormatori").on("click",function(e){
         var DocentiArray = [];
         var TutorArray = [];
         $('div', '#Docenti').each(function(){

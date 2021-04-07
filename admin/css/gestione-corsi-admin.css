@@ -2,6 +2,9 @@
  * All of the CSS for your admin-specific functionality should be
  * included in this file.
  */
+.jquery-migrate-dashboard-notice{
+	display:none;
+}
 @media print{
     .tornaindietro{
         display: none;
@@ -1722,17 +1725,6 @@ position:absolute;
    font-size:1.2em;
    font-weight: bold;
 }
-.SemaforoGiallo{
-    background:#f2f200;
-    color:#000;
-}
-.SemaforoRosso{
-   background:red;
-    color:#fff;   
-}
-.SemaforoVerde{
-    color:#fff;     
-}
 .evidenziaVoce{
     font-weight: bold;
     font-size: 1.2em;
@@ -1819,4 +1811,31 @@ position:absolute;
 }
 .column-Date_Lezioni{
     width: 80px;
+}
+.FixHead{
+	position: sticky;
+	top: 2em;
+}
+@media (max-width: 781px){
+	.FixHead{
+		top: 3em;
+	}
+}
+.listaCorsi {
+	margin-left:2em;
+	font-weight:bold;
+	list-style: disc;
+}
+.GridDatiUtenti{
+	width:100%;
+}
+.emailDest{
+	font-weight:bold;
+	font-size:2em;
+}
+.StatoOperazioni{
+	font-size:2em;
+	text-align:center;
+	color:Green;
+	font-weight:bold;
 }
